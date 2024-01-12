@@ -2,8 +2,8 @@
 
 namespace LesPhp\PSR4Converter\Mapper;
 
+use LesPhp\PSR4Converter\Console\ConfigurationResolver;
 use LesPhp\PSR4Converter\Exception\InvalidNamespaceException;
-use LesPhp\PSR4Converter\Mapper\Result\MappedResult;
 use PhpParser\Lexer;
 use PhpParser\Parser;
 
@@ -23,6 +23,7 @@ interface MapperFactoryInterface
         bool $ignoreNamespacedUnderscoreConversion,
         array $ignoreNamespaces,
         bool $pathBasedConversion,
-        bool $forceNamesCamelCase
+        bool $forceNamesCamelCase,
+        ConfigurationResolver $configurationResolver
     ): MapperInterface;
 }

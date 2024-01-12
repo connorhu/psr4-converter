@@ -1,11 +1,11 @@
 <?php
 
 use LesPhp\PSR4Converter\Autoloader\AutoloaderFactory;
-use LesPhp\PSR4Converter\Command\ClearCommand;
-use LesPhp\PSR4Converter\Command\ConvertCommand;
-use LesPhp\PSR4Converter\Command\InspectCommand;
-use LesPhp\PSR4Converter\Command\MapCommand;
-use LesPhp\PSR4Converter\Command\RenameCommand;
+use LesPhp\PSR4Converter\Console\Command\ClearCommand;
+use LesPhp\PSR4Converter\Console\Command\ConvertCommand;
+use LesPhp\PSR4Converter\Console\Command\InspectCommand;
+use LesPhp\PSR4Converter\Console\Command\MapCommand;
+use LesPhp\PSR4Converter\Console\Command\RenameCommand;
 use LesPhp\PSR4Converter\Converter\ConverterFactory;
 use LesPhp\PSR4Converter\Mapper\MapperFactory;
 use LesPhp\PSR4Converter\Mapper\Result\Serializer\Serializer;

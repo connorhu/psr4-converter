@@ -1,11 +1,12 @@
 <?php
 
-namespace LesPhp\PSR4Converter\Command;
+namespace LesPhp\PSR4Converter\Console\Command;
 
-use LesPhp\PSR4Converter\Parser\CustomEmulativeLexer;
 use LesPhp\PSR4Converter\Mapper\Result\Serializer\SerializerInterface;
+use LesPhp\PSR4Converter\Parser\CustomEmulativeLexer;
 use LesPhp\PSR4Converter\Renamer\RenamerFactoryInterface;
 use PhpParser\ParserFactory;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,15 +14,12 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
+#[AsCommand(name: 'rename', description: 'Rename all mapped entities on destination dirs')]
 class RenameCommand extends Command
 {
     private const MAP_FILE_PATH_ARGUMENT = 'map-file';
 
     private const DESTINATION_DIRS_ARGUMENT = 'destination-dirs';
-
-    protected static $defaultName = 'rename';
-
-    protected static $defaultDescription = 'Rename all mapped entities on destination dirs';
 
     public function __construct(
         private readonly RenamerFactoryInterface $renamerFactory,

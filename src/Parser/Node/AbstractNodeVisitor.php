@@ -16,10 +16,10 @@ use PHPStan\PhpDocParser\Lexer\Lexer;
 use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\PhpDocParser;
 use PHPStan\PhpDocParser\Parser\TypeParser;
-use Symplify\Astral\PhpDocParser\Contract\PhpDocNodeVisitorInterface;
-use Symplify\Astral\PhpDocParser\PhpDocNodeTraverser;
-use Symplify\Astral\PhpDocParser\SimplePhpDocParser;
-use Symplify\Astral\PhpDocParser\ValueObject\Ast\PhpDoc\SimplePhpDocNode;
+use Symplify\SimplePhpDocParser\Contract\PhpDocNodeVisitorInterface;
+use Symplify\SimplePhpDocParser\PhpDocNodeTraverser;
+use Symplify\SimplePhpDocParser\SimplePhpDocParser;
+use Symplify\SimplePhpDocParser\ValueObject\Ast\PhpDoc\SimplePhpDocNode;
 
 abstract class AbstractNodeVisitor extends PhpParserNodeVisitor
 {

@@ -10,7 +10,7 @@ use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
@@ -62,7 +62,7 @@ class Serializer implements SerializerInterface
 
     private function initSerializer(): void
     {
-        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader());
+        $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
         $metadataAwareNameConverter = new MetadataAwareNameConverter($classMetadataFactory);
         $propertyTypeExtractor = new PropertyInfoExtractor([new ReflectionExtractor()],
             [new TypedArrayAttributeExtractor()]);

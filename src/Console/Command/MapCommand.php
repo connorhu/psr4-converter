@@ -1,19 +1,20 @@
 <?php
 
-namespace LesPhp\PSR4Converter\Command;
+namespace LesPhp\PSR4Converter\Console\Command;
 
+use LesPhp\PSR4Converter\Config;
+use LesPhp\PSR4Converter\Console\ConfigurationResolver;
+use LesPhp\PSR4Converter\Exception\InvalidNamespaceException;
 use LesPhp\PSR4Converter\Inspector\DumperInterface;
 use LesPhp\PSR4Converter\Inspector\TableDumper;
-use LesPhp\PSR4Converter\Exception\InvalidNamespaceException;
-use LesPhp\PSR4Converter\Exception\MapperConflictException;
-use LesPhp\PSR4Converter\Parser\CustomEmulativeLexer;
-use LesPhp\PSR4Converter\Mapper\Node\MapFileVisitor;
 use LesPhp\PSR4Converter\Mapper\MapperFactoryInterface;
-use LesPhp\PSR4Converter\Mapper\Result\MappedError;
+use LesPhp\PSR4Converter\Mapper\Node\MapFileVisitor;
 use LesPhp\PSR4Converter\Mapper\Result\MappedFile;
 use LesPhp\PSR4Converter\Mapper\Result\MappedResult;
 use LesPhp\PSR4Converter\Mapper\Result\Serializer\SerializerInterface;
+use LesPhp\PSR4Converter\Parser\CustomEmulativeLexer;
 use PhpParser\ParserFactory;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,8 +25,11 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
+#[AsCommand(name: 'map', description: 'Map a directory for a PSR-4 conversion')]
 class MapCommand extends Command
 {
+    private const CONFIG_FILE = 'config';
+
     private const SRC_ARGUMENT = 'src';
 
     private const PREFIX_NAMESPACE = 'prefix';
@@ -62,10 +66,6 @@ class MapCommand extends Command
 
     public const DEFAULT_MAP_FILENAME = '.psr4-converter.map.json';
 
-    protected static $defaultName = 'map';
-
-    protected static $defaultDescription = 'Map a directory for a PSR-4 conversion';
-
     public function __construct(
         private readonly MapperFactoryInterface $mapperFactory,
         private readonly SerializerInterface $resultSerializer
@@ -86,6 +86,13 @@ class MapCommand extends Command
                 self::SRC_ARGUMENT,
                 InputArgument::REQUIRED,
                 'source path to convert'
+            )
+            ->addOption(
+                self::CONFIG_FILE,
+                'c',
+                InputOption::VALUE_REQUIRED,
+                'Path to the config file',
+                null
             )
             ->addOption(
                 self::INCLUDES_DIR_PATH,
@@ -191,23 +198,29 @@ class MapCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $errorOutput = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
-        $includeDirPath = $input->getOption(self::INCLUDES_DIR_PATH);
-        $mapFile = $input->getOption(self::MAP_FILE_PATH);
-        $isAppendNamespace = $input->getOption(self::APPEND_NAMESPACE);
-        $followSymlink = $input->getOption(self::FOLLOW_SYMLINK);
-        $ignoreDotFiles = $input->getOption(self::IGNORE_DOT_FILES);
-        $ignoreVCSIgnored = $input->getOption(self::IGNORE_VCS_IGNORED);
-        $ignorePaths = $input->getOption(self::IGNORE_PATH);
-        $ignoreNamespaces = $input->getOption(self::IGNORE_NAMESPACE);
-        $phpParserKind = $input->getOption(self::USE_PHP5) ? ParserFactory::PREFER_PHP5 : ParserFactory::PREFER_PHP7;
-        $dryRun = $input->getOption(self::DRY_RUN);
-        $underscoreConversion = $input->getOption(self::UNDERSCORE_CONVERSION);
-        $ignoreErrors = $input->getOption(self::IGNORE_ERRORS);
-        $ignoreNamespacedUnderscoreConversion = $input->getOption(self::IGNORE_NAMESPACED_UNDERSCORE_CONVERSION);
-        $pathBasedConversion = $input->getOption(self::PATH_BASED_CONVERSION);
-        $forceNamesCamelCase = $input->getOption(self::FORCE_NAMES_CAMELCASE);
-        $prefixNamespace = $input->getArgument(self::PREFIX_NAMESPACE);
-        $srcPath = $input->getArgument(self::SRC_ARGUMENT);
+
+        $defaultConfig = new Config();
+        $configurationResolver = new ConfigurationResolver($defaultConfig, [
+            'config' => $input->getOption(self::CONFIG_FILE),
+            'srcPath' => $input->getArgument(self::SRC_ARGUMENT),
+            'followSymlink' => $input->getOption(self::FOLLOW_SYMLINK),
+            'ignoreDotFiles' => $input->getOption(self::IGNORE_DOT_FILES),
+            'ignoreVCSIgnored' => $input->getOption(self::IGNORE_VCS_IGNORED),
+            'ignorePaths' => $input->getOption(self::IGNORE_PATH),
+            'includeDirPath' => $includeDirPath = $input->getOption(self::INCLUDES_DIR_PATH),
+            'mapFile' => $mapFile = $input->getOption(self::MAP_FILE_PATH),
+            'isAppendNamespace' => $isAppendNamespace = $input->getOption(self::APPEND_NAMESPACE),
+            'ignoreNamespaces' => $ignoreNamespaces = $input->getOption(self::IGNORE_NAMESPACE),
+            'phpParserKind' => $phpParserKind = $input->getOption(self::USE_PHP5) ? ParserFactory::PREFER_PHP5 : ParserFactory::PREFER_PHP7,
+            'dryRun' => $dryRun = $input->getOption(self::DRY_RUN),
+            'underscoreConversion' => $underscoreConversion = $input->getOption(self::UNDERSCORE_CONVERSION),
+            'ignoreErrors' => $ignoreErrors = $input->getOption(self::IGNORE_ERRORS),
+            'ignoreNamespacedUnderscoreConversion' => $ignoreNamespacedUnderscoreConversion = $input->getOption(self::IGNORE_NAMESPACED_UNDERSCORE_CONVERSION),
+            'pathBasedConversion' => $pathBasedConversion = $input->getOption(self::PATH_BASED_CONVERSION),
+            'forceNamesCamelCase' => $forceNamesCamelCase = $input->getOption(self::FORCE_NAMES_CAMELCASE),
+            'prefixNamespace' => $prefixNamespace = $input->getArgument(self::PREFIX_NAMESPACE),
+        ]);
+
         $statementsDumper = new TableDumper();
 
         // This ensures that there will be no errors when traversing highly nested node trees.
@@ -216,17 +229,11 @@ class MapCommand extends Command
         }
 
         $filesystem = new Filesystem();
-        $finder = new Finder();
+
         $lexer = new CustomEmulativeLexer();
         $parser = (new ParserFactory())->create($phpParserKind, $lexer);
-        $srcRealPath = realpath($srcPath);
-        $mapFileRealPath = Path::isAbsolute($mapFile) ? $mapFile : $srcRealPath.'/'.$mapFile;
 
-        if ($srcRealPath === false || !is_dir($srcRealPath)) {
-            $errorOutput->writeln("The source directory doesn't exists or isn't readable.");
-
-            return Command::INVALID;
-        }
+        $mapFileRealPath = Path::isAbsolute($mapFile) ? $mapFile : $configurationResolver->getSrcPath().'/'.$mapFile;
 
         if (Path::isAbsolute($includeDirPath)) {
             $errorOutput->writeln("The includes dir must be a relative path.");
@@ -234,24 +241,10 @@ class MapCommand extends Command
             return Command::INVALID;
         }
 
-        if ($followSymlink) {
-            $finder->followLinks();
-        }
-
-        $finder->in($srcRealPath)
-            ->ignoreDotFiles($ignoreDotFiles)
-            ->ignoreVCSIgnored($ignoreVCSIgnored)
-            ->files()
-            ->name('*.php');
-
-        foreach ($ignorePaths as $ignorePath) {
-            $finder->notPath($ignorePath);
-        }
-
         $mapper = $this->mapperFactory->createMapper(
             $parser,
             $lexer,
-            $srcRealPath,
+            $configurationResolver->getSrcPath(),
             $includeDirPath,
             $prefixNamespace,
             $isAppendNamespace,
@@ -259,13 +252,14 @@ class MapCommand extends Command
             $ignoreNamespacedUnderscoreConversion,
             $ignoreNamespaces,
             $pathBasedConversion,
-            $forceNamesCamelCase
+            $forceNamesCamelCase,
+            $configurationResolver
         );
 
         /** @var MappedFile[] $mappedFiles */
         $mappedFiles = [];
 
-        foreach ($finder as $file) {
+        foreach ($configurationResolver->getFinder() as $file) {
             if ($output->isDebug()) {
                 $output->writeln("Processing file: " . $file->getRealPath());
             }
@@ -279,12 +273,12 @@ class MapCommand extends Command
             }
         }
 
-        $mappedResult = new MappedResult($phpParserKind, $srcRealPath, $includeDirPath, $mappedFiles);
+        $mappedResult = new MappedResult($phpParserKind, $configurationResolver->getSrcPath(), $includeDirPath, $mappedFiles);
 
         if ($mappedResult->hasError() && !$ignoreErrors) {
             $errorOutput->writeln('There are errors on conversions attempts, fix it.');
 
-            $statementsDumper->dumpStmts($mappedResult->getErrors(), $srcRealPath, $errorOutput);
+            $statementsDumper->dumpStmts($mappedResult->getErrors(), $configurationResolver->getSrcPath(), $errorOutput);
 
             return Command::INVALID;
         }

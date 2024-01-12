@@ -2,6 +2,7 @@
 
 namespace LesPhp\PSR4Converter\Mapper;
 
+use LesPhp\PSR4Converter\Console\ConfigurationResolver;
 use LesPhp\PSR4Converter\Parser\Naming\NameHelper;
 use PhpParser\Lexer;
 use PhpParser\Parser;
@@ -19,7 +20,8 @@ class MapperFactory implements MapperFactoryInterface
         bool $ignoreNamespacedUnderscoreConversion,
         array $ignoreNamespaces,
         bool $pathBasedConversion,
-        bool $forceNamesCamelCase
+        bool $forceNamesCamelCase,
+        ConfigurationResolver $configurationResolver,
     ): MapperInterface {
         return new Mapper(
             new NameHelper(),
@@ -33,7 +35,8 @@ class MapperFactory implements MapperFactoryInterface
             $ignoreNamespacedUnderscoreConversion,
             $ignoreNamespaces,
             $pathBasedConversion,
-            $forceNamesCamelCase
+            $forceNamesCamelCase,
+            $configurationResolver
         );
     }
 }

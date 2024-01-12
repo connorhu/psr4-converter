@@ -1,9 +1,10 @@
 <?php
 
-namespace LesPhp\PSR4Converter\Command;
+namespace LesPhp\PSR4Converter\Console\Command;
 
 use LesPhp\PSR4Converter\Mapper\Mapper;
 use LesPhp\PSR4Converter\Mapper\Result\Serializer\SerializerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,15 +13,12 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[AsCommand(name: 'clear', description: 'Remove all mapped files from the source directory')]
 class ClearCommand extends Command
 {
     private const MAP_FILE_PATH_ARGUMENT = 'map-file';
 
     private const DRY_RUN = 'dry-run';
-
-    protected static $defaultName = 'clear';
-
-    protected static $defaultDescription = 'Remove all mapped files from the source directory';
 
     public function __construct(
         private SerializerInterface $resultSerializer

@@ -2,6 +2,7 @@
 
 namespace LesPhp\PSR4Converter\Mapper;
 
+use LesPhp\PSR4Converter\Console\ConfigurationResolver;
 use LesPhp\PSR4Converter\Exception\InvalidHashException;
 use LesPhp\PSR4Converter\Exception\InvalidNamespaceException;
 use LesPhp\PSR4Converter\Exception\InvalidRootStatementException;
@@ -43,7 +44,8 @@ class Mapper implements MapperInterface
         private readonly bool $ignoreNamespacedUnderscoreConversion,
         array $ignoreNamespaces,
         private readonly bool $pathBasedConversion,
-        private readonly bool $forceNamesCamelCase
+        private readonly bool $forceNamesCamelCase,
+        private readonly ConfigurationResolver $configurationResolver,
     ) {
         if ($prefixNamespace !== null && !$this->keywordHelper->isValidNamespace($prefixNamespace)) {
             throw new InvalidNamespaceException();
@@ -124,7 +126,9 @@ class Mapper implements MapperInterface
             $this->ignoreNamespacedUnderscoreConversion,
             $this->ignoreNamespaces,
             $this->pathBasedConversion,
-            $this->forceNamesCamelCase
+            $this->forceNamesCamelCase,
+            $this->configurationResolver->getConfig()->getClassNameFilter(),
+            $this->configurationResolver->getConfig()->getNamespaceFilter(),
         );
 
         $mappedUnits = $nodeManager->mapFile($mapperContext, $stmts);

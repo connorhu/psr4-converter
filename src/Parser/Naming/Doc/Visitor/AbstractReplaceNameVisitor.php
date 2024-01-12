@@ -10,7 +10,7 @@ use PHPStan\PhpDocParser\Ast\ConstExpr\ConstFetchNode;
 use PHPStan\PhpDocParser\Ast\Node;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
-use Symplify\Astral\PhpDocParser\PhpDocNodeVisitor\AbstractPhpDocNodeVisitor;
+use Symplify\SimplePhpDocParser\PhpDocNodeVisitor\AbstractPhpDocNodeVisitor;
 
 abstract class AbstractReplaceNameVisitor extends AbstractPhpDocNodeVisitor
 {

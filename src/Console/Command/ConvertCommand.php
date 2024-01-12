@@ -1,14 +1,15 @@
 <?php
 
-namespace LesPhp\PSR4Converter\Command;
+namespace LesPhp\PSR4Converter\Console\Command;
 
 use LesPhp\PSR4Converter\Autoloader\AutoloaderFactoryInterface;
 use LesPhp\PSR4Converter\Converter\ConverterFactoryInterface;
 use LesPhp\PSR4Converter\Exception\InvalidHashException;
-use LesPhp\PSR4Converter\Parser\CustomEmulativeLexer;
 use LesPhp\PSR4Converter\Mapper\Mapper;
 use LesPhp\PSR4Converter\Mapper\Result\Serializer\SerializerInterface;
+use LesPhp\PSR4Converter\Parser\CustomEmulativeLexer;
 use PhpParser\ParserFactory;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'convert', description: 'Convert the mapped result')]
 class ConvertCommand extends Command
 {
     private const MAP_FILE_PATH_ARGUMENT = 'map-file';
@@ -29,10 +31,6 @@ class ConvertCommand extends Command
     private const IGNORE_VENDOR_NAMESPACE_PATH = 'ignore-vendor-path';
 
     private const CREATE_ALIASES = 'create-aliases';
-
-    protected static $defaultName = 'convert';
-
-    protected static $defaultDescription = 'Convert the mapped result';
 
     public function __construct(
         private readonly ConverterFactoryInterface $converterFactory,

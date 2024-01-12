@@ -1,12 +1,13 @@
 <?php
 
-namespace LesPhp\PSR4Converter\Command;
+namespace LesPhp\PSR4Converter\Console\Command;
 
 use LesPhp\PSR4Converter\Inspector\DumperInterface;
-use LesPhp\PSR4Converter\Inspector\TableDumper;
 use LesPhp\PSR4Converter\Inspector\NamesChangedDumper;
+use LesPhp\PSR4Converter\Inspector\TableDumper;
 use LesPhp\PSR4Converter\Mapper\Result\MappedResult;
 use LesPhp\PSR4Converter\Mapper\Result\Serializer\SerializerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,16 +15,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'inspect', description: 'Inspect all mapped code from a result file')]
 class InspectCommand extends Command
 {
     private const MAP_FILE_PATH_ARGUMENT = 'map-file';
     private const OUTPUT_FORMAT = 'output';
     private const OUTPUT_TABLE_OPTION = 'table';
     private const OUTPUT_ARRAY_NAMES_CHANGES = 'names-changes';
-
-    protected static $defaultName = 'inspect';
-
-    protected static $defaultDescription = 'Inspect all mapped code from a result file';
 
     public function __construct(
         private SerializerInterface $resultSerializer

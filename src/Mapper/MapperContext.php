@@ -18,7 +18,9 @@ class MapperContext
         private readonly bool $ignoreNamespacedUnderscoreConversion,
         private readonly array $ignoreNamespaces,
         private readonly bool $pathBasedConversion,
-        private readonly bool $forceNamesCamelCase
+        private readonly bool $forceNamesCamelCase,
+        private $classNameFilter,
+        private $namespaceFilter,
     ) {
     }
 
@@ -79,5 +81,23 @@ class MapperContext
     public function isForceNamesCamelCase(): bool
     {
         return $this->forceNamesCamelCase;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getClassNameFilter(): ?callable
+    {
+        return $this->classNameFilter;
+    }
+
+    public function getNamespaceFilter(): ?callable
+    {
+        return $this->namespaceFilter;
+    }
+
+    public function getRelativeFilePath(): string
+    {
+        return ltrim(substr($this->filePath, strlen($this->rootSourcePath)), DIRECTORY_SEPARATOR);
     }
 }
